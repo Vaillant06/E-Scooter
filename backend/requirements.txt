@@ -8,3 +8,4 @@ python-multipart==0.0.20
 SQLAlchemy==2.0.44
 authlib
 httpx
+itsdangerous
