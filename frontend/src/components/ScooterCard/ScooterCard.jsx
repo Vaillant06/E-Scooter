@@ -12,7 +12,7 @@ function ScooterCard({ scooter }) {
 
       {/* Image */}
       <img
-        src={"images/scooter.webp"}
+        src={"/scooter.webp"}
         alt={scooter.scooterId}
         className="scooter-img"
       />

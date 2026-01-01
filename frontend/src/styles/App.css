@@ -5,7 +5,7 @@ html, body, #root {
 }
 
 body {
-  background: url("src/assets/bg.png") no-repeat center center fixed;
+  background: url("/bg.png") no-repeat center center fixed;
   background-size: cover;
   margin: 0;
   padding: 0;

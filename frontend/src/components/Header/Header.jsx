@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import ssnImg from "../../assets/image.png";
 import "./Header.css";
 
 function Header({ onMenuClick, hideNav }) {
@@ -18,7 +17,7 @@ function Header({ onMenuClick, hideNav }) {
         )}
 
         <h1 className="logo">
-          <img src={ssnImg} alt="ssn-image" className="ssn-logo" />
+          <img src={"./ssn.png"} alt="ssn-image" className="ssn-logo" />
           E-Scooter System
           <i className="bi bi-scooter"></i>
         </h1>

@@ -64,7 +64,7 @@ return (
 
                 <div className="booking-details mb-5">
                     <img
-                    src={"images/scooter.webp"}
+                    src={"/scooter.webp"}
                     alt="Scooter"
                     className="booking-scooter-img mb-4"
                     />
