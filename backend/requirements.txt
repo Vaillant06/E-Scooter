@@ -6,3 +6,5 @@ python-dotenv==1.2.1
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.20
 SQLAlchemy==2.0.44
+authlib
+httpx
