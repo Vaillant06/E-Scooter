@@ -1,0 +1,32 @@
+import { useEffect, useState } from "react";
+import ScooterCard from "../ScooterCard/ScooterCard";
+import "./ScooterGrid.css";
+
+function ScooterGrid() {
+  const [scooters, setScooters] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/scooters")
+      .then(res => res.json())
+      .then(data => setScooters(data))
+      .catch(err => console.error("Error fetching scooters:", err));
+  }, []);
+
+  return (
+    <>
+      <h3 className=" mx-4 text-white">Available Scooters</h3>
+
+      <div className="scooter-grid">
+        {scooters.length === 0 ? (
+          <p>No scooters in the system.</p> 
+        ) : (
+          scooters.map(scooter => (
+            <ScooterCard key={scooter.id} scooter={scooter} />
+          ))
+        )}
+      </div>
+    </>
+  );
+}
+
+export default ScooterGrid;

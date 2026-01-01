@@ -1,0 +1,70 @@
+.history-container {
+    padding: 70px 20px;
+    min-height: 100vh;
+  }
+  
+  .history-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #5366FF;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .history-card {
+    background: rgba(255,255,255,0.85);
+    border-radius: 16px;
+    padding: 18px 20px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0px 6px 18px rgba(0,0,0,0.12);
+    animation: fadeIn .3s ease;
+  }
+  
+  /* Card sections */
+  .history-header,
+  .history-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+  }
+  
+  .history-body p {
+    margin: 4px 0;
+    font-size: 0.95rem;
+  }
+  
+  /* Highlight elements */
+  .scooter-id {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  
+  .ride-cost {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #3A4ADD;
+  }
+  
+  .empty-box {
+    margin-top: 80px;
+    text-align: center;
+    color: white;
+    font-size: 1.4rem;
+  }
+  
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 10px;
+  }
+  
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  

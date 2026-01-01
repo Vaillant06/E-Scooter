@@ -1,0 +1,95 @@
+.wallet-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px 15px 60px;
+    font-family: Inter, sans-serif;
+}
+
+.wallet-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: white;
+}
+
+.shadow-card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 25px;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+}
+
+.wallet-label {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.wallet-amount {
+    font-size: 42px;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 6px;
+}
+
+.wallet-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.add-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    min-width: 95px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.add-btn:hover {
+    background: #1e4fc5;
+}
+
+.txn-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.txn-row:last-child {
+    border-bottom: none;
+}
+
+.txn-time {
+    color: #6b7280;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.txn-amount {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.credit .txn-amount {
+    color: #059669;
+}
+
+.debit .txn-amount {
+    color: #dc2626;
+}
+
+.empty-text {
+    padding: 10px 0;
+    color: #9ca3af;
+    font-style: italic;
+}
+

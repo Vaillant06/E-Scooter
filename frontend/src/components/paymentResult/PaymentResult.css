@@ -1,0 +1,24 @@
+.status-page {
+    max-width: 600px;
+    margin: auto;
+    background: rgba(255,255,255,0.85);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  }
+  
+  .status-page.success h2 {
+    color: #2E8B57;
+  }
+  
+  .status-page.failed h2 {
+    color: #D7263D;
+  }
+  
+
+@media (max-width: 768px){ 
+    .status-page {
+        margin-left:5%;
+        width: 90%;
+    }
+}   

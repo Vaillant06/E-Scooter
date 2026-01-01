@@ -1,0 +1,21 @@
+#root {
+  display: block !important;
+  width: 100%;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Poppins";
+}
+
+body {
+  background-color: white;
+}
+
+.payment-page,
+.booking-page {
+  display: block !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+}

@@ -1,0 +1,45 @@
+/* Prevent global styles from login/signup from messing layout */
+.pm-container {
+  width: 360px;
+  margin-top: 15px;
+  text-align: left;
+  align-self: center;        /* stays aligned within card */
+}
+
+.pm-title {
+  margin-bottom: 18px;
+  font-weight: 600;
+  font-size: 18px;
+  color: #2d2d2d;
+}
+
+/* Each radio row */
+.pm-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+/* Radio styling */
+.pm-radio {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: #007bff; /* Blue */
+}
+
+/* Text next to radio */
+.pm-label {
+  font-size: 16px;
+  color: #2d2d2d;
+}
+
+/* Mobile friendly */
+@media (max-width: 600px) {
+  .pm-container {
+    width: 100%;
+    padding-left: 15px;
+  }
+}

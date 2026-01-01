@@ -1,0 +1,53 @@
+.summary-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem;
+  }
+  
+  .summary-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+  }
+  
+  .summary-box {
+    background: #ffffff;
+    width: 380px;
+    padding: 1.8rem;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.12);
+  }
+  
+  .summary-scooter {
+    text-align: center;
+    margin-bottom: 1.2rem;
+    font-size: 1.4rem;
+    color: #2d66ff;
+    font-weight: 700;
+  }
+  
+  .summary-row,
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.6rem 0;
+    font-size: 1.05rem;
+  }
+  
+  .summary-total {
+    font-size: 1.3rem;
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 2px solid #2d66ff;
+    font-weight: 700;
+  }
+  
+  .summary-btn {
+    margin-top: 2rem;
+    width: 230px;
+    padding: 0.7rem;
+    font-size: 1.1rem;
+    border-radius: 10px;
+  }
+  

@@ -1,0 +1,137 @@
+/* ================= HEADER ================= */
+
+header {
+  height: 90px;
+  background-color: #187bcd;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  position: relative;
+  z-index: 1200;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.ssn-logo {
+  height:40px;
+  border-radius: 8px;
+}
+
+/* ================= DESKTOP NAV ================= */
+
+.nav-icons {
+  display: flex;
+  gap: 5px;
+}
+
+.nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
+  transition: 0.1s ease-out;
+}
+
+.nav:hover {
+  border: 1px solid white;
+  background-color: white;
+  color: #1167b1;
+}
+
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: white;
+  cursor: pointer;
+}
+
+.mobile-nav-btn {
+  display: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.mobile-nav{
+  display: none;
+}
+
+/* =========================
+   MOBILE VIEW – HEADER
+   ========================= */
+@media (max-width: 768px) {
+
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    padding: 0 16px;
+    z-index: 1200; 
+  }
+
+  /* Hide desktop nav */
+  .desktop-nav {
+    display: none;
+  }
+
+  /* Show menu buttons */
+  .menu-btn,
+  .mobile-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Mobile dropdown nav */
+  .mobile-nav {
+    position: fixed;
+    top: 90px;
+    right: 16px;
+    background: white;
+    color: #1167b1;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+    overflow: hidden;
+    z-index: 1100;
+  }
+
+  .mobile-nav a {
+    padding: 14px 16px;
+    text-decoration: none;
+    color: #1167b1;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+  }
+
+  .mobile-nav a:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-nav a:hover {
+    background: #f0f6ff;
+  }
+}

@@ -1,0 +1,90 @@
+  .booking-page {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center ;
+  align-items: center;
+}
+
+/* Title */
+.booking-page h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-align: center;
+  color: #2d2d2d;
+}
+
+/* Scooter image */
+.booking-scooter-img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0px 4px 14px rgba(0,0,0,0.15);
+}
+
+/* Card-like details section */
+.booking-details {
+  width: 360px;
+  padding: 20px 25px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0px 4px 14px rgba(0,0,0,0.12);
+  border-left: 5px solid #007bff;
+}
+
+.booking-details p {
+  font-size: 1rem;
+  margin: 6px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.booking-details b {
+  color: #444;
+}
+
+.estimated-time-container {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  width: 350px;
+}
+
+.form-range {
+  accent-color: #007bff; /* blue slider thumb & bar */
+}
+
+
+/* Action buttons */
+.booking-actions {
+  margin-top: 25px;
+  display: flex;
+  gap: 15px;
+}
+
+.booking-actions button {
+  width: 180px;
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+/* Responsive UI */
+@media (max-width: 768px) {
+  .booking-details {
+    width: 90%;
+  }
+
+  .booking-actions {
+    flex-direction: column;
+    width: 90%;
+    align-items: center;
+  }
+
+  .booking-actions button {
+    width: 100%;
+  }
+}
