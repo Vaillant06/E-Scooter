@@ -60,6 +60,9 @@ def init_db():
     with conn.cursor() as cur:
         cur.execute(
             """
+            DROP SCHEMA public CASCADE;
+            CREATE SCHEMA public;
+
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(100) NOT NULL,
@@ -103,7 +106,11 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
-            UPDATE scooters SET status = 'free' WHERE scooterId='E001';
+            INSERT INTO scooters (scooterId, batteryHealth, status, baseFee, ratePerMin, image)
+            VALUES
+                ('E001', 85, 'free', 20, 2, '/images/scooter.webp'),
+                ('E002', 100, 'unavailable', 20, 2, '/images/scooter.webp');
+
             """
         )
         conn.commit()
