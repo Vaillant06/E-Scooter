@@ -2,11 +2,13 @@ import { Link } from "react-router-dom";
 import "./ScooterCard.css";
 
 function ScooterCard({ scooter }) {
-  const isunavailable = scooter.status === "unavailable";
-  const isActive = scooter.status === "active";
+  const isFree = scooter.status === "free";
+  
+  // battery display: show "--" when scooter not free
+  const batteryDisplay = isFree ? `${scooter.batteryHealth}%` : "--";
 
   return (
-    <div className={`scooter-card ${!isActive? "disabled" : ""}`}>
+    <div className={`scooter-card ${!isFree ? "disabled" : ""}`}>
 
       {/* Image */}
       <img
@@ -15,38 +17,32 @@ function ScooterCard({ scooter }) {
         className="scooter-img"
       />
 
-      {/* Overlay for active scooters */}
-      {isActive && (
+      {/* Overlay for unavailable scooters */}
+      {!isFree && (
         <div className="overlay">
-          <span className="text-success">Currently Active...</span>
+          <span>Available Soon</span>
         </div>
       )}
 
-      {isunavailable && (
-        <div className="overlay">
-          <span className="text-muted">Available Soon...</span>
-        </div>
-      )}  
-
       {/* Details */}
       <h4 className="mt-2">{scooter.scooterId}</h4>
-      <p>Battery: {scooter.batteryHealth}</p>
+      <p>Battery: {batteryDisplay}</p>
       <p>Status: {scooter.status}</p>
 
       {/* Buttons stacked vertically */}
       <div className="actions-vertical">
         <Link
-          to={isunavailable ? "/tracking" : "#"}
-          className={`btn btn-secondary mb-2 ${!isunavailable ? "disabled-btn" : ""}`}
-          state={isunavailable ? { scooter } : null}
+          to={isFree ? "/tracking" : "#"}
+          className={`btn btn-secondary mb-2 ${!isFree ? "disabled-btn" : ""}`}
+          state={isFree ? { scooter } : null}
         >
           View Location
         </Link>
 
         <Link
-          to={isunavailable ? "/book" : "#"}
-          className={`btn btn-primary mb-2 ${!isunavailable ? "disabled-btn" : ""}`}
-          state={isunavailable ? { scooter } : null}
+          to={isFree ? "/book" : "#"}
+          className={`btn btn-primary mb-2 ${!isFree ? "disabled-btn" : ""}`}
+          state={isFree ? { scooter } : null}
         >
           Select Scooter
         </Link>
