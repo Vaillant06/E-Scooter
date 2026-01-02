@@ -14,7 +14,7 @@ function ScooterGrid() {
 
   return (
     <>
-      <h3 className=" mx-4 text-white">Available Scooters</h3>
+      <h3 className="text-white">Available Scooters</h3>
 
       <div className="scooter-grid">
         {scooters.length === 0 ? (
