@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./TrackingPage.css";
 
-const GOOGLE_MAPS_API_KEY = "AIzaSyDJp7uscyjA-4ey5MeO65ux79UOvPSaSV4";
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const BACKEND_URL = "https://e-scooter-33r2.onrender.com/api/location";
 
 // ---------- Custom scooter marker ----------
