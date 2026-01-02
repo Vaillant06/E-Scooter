@@ -18,12 +18,7 @@ function ScooterCard({ scooter }) {
         className="scooter-img"
       />
 
-      {/* Overlay for unavailable scooters */}
-      {!isFree && (
-        <div className="overlay">
-          <span>Available Soon</span>
-        </div>
-      )}
+
 
       {/* Overlay for active scooters */}
       {isActive && (
