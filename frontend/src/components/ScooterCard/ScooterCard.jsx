@@ -22,6 +22,12 @@ function ScooterCard({ scooter }) {
         </div>
       )}
 
+      {isunavailable && (
+        <div className="overlay">
+          <span className="text-success">Unavailable</span>
+        </div>
+      )}  
+
       {/* Details */}
       <h4 className="mt-2">{scooter.scooterId}</h4>
       <p>Battery: {scooter.batteryHealth}</p>
