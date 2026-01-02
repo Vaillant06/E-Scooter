@@ -3,6 +3,7 @@ import "./ScooterCard.css";
 
 function ScooterCard({ scooter }) {
   const isFree = scooter.status === "free";
+  const isActive = scooter.status === "active";
   
   // battery display: show "--" when scooter not free
   const batteryDisplay = isFree ? `${scooter.batteryHealth}%` : "--";
@@ -21,6 +22,13 @@ function ScooterCard({ scooter }) {
       {!isFree && (
         <div className="overlay">
           <span>Available Soon</span>
+        </div>
+      )}
+
+      {/* Overlay for active scooters */}
+      {!isFree && (
+        <div className="overlay">
+          <span className="text-success">Active</span>
         </div>
       )}
 
