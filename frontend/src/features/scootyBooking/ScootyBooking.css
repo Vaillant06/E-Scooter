@@ -75,10 +75,10 @@
 /* Responsive UI */
 @media (max-width: 768px) {
 
-  input {
+  .estimated-time-container {
     width: 90%;
   }
-  
+
   .booking-details {
     width: 90%;
   }
