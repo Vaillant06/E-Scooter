@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import "./ScooterCard.css";
 
 function ScooterCard({ scooter }) {
-  const isFree = scooter.status === "free";
+  const isunavailable = scooter.status === "unavailable";
   const isActive = scooter.status === "active";
 
   return (
@@ -30,17 +30,17 @@ function ScooterCard({ scooter }) {
       {/* Buttons stacked vertically */}
       <div className="actions-vertical">
         <Link
-          to={isFree ? "/tracking" : "#"}
-          className={`btn btn-secondary mb-2 ${!isFree ? "disabled-btn" : ""}`}
-          state={isFree ? { scooter } : null}
+          to={isunavailable ? "/tracking" : "#"}
+          className={`btn btn-secondary mb-2 ${!isunavailable ? "disabled-btn" : ""}`}
+          state={isunavailable ? { scooter } : null}
         >
           View Location
         </Link>
 
         <Link
-          to={isFree ? "/book" : "#"}
-          className={`btn btn-primary mb-2 ${!isFree ? "disabled-btn" : ""}`}
-          state={isFree ? { scooter } : null}
+          to={isunavailable ? "/book" : "#"}
+          className={`btn btn-primary mb-2 ${!isunavailable ? "disabled-btn" : ""}`}
+          state={isunavailable ? { scooter } : null}
         >
           Select Scooter
         </Link>
