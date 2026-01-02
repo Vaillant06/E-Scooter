@@ -18,7 +18,7 @@ function ScooterGrid() {
 
       <div className="scooter-grid">
         {scooters.length === 0 ? (
-          <p className="text-white">Server Not Reachable...</p> 
+          <p className="text-white">Loading Scooters...</p> 
         ) : (
           scooters.map(scooter => (
             <ScooterCard key={scooter.id} scooter={scooter} />
