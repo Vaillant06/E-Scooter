@@ -81,12 +81,14 @@
   }
 
   .booking-details {
+    margin-left: 20px;
     width: 90%;
   }
 
   .booking-actions {
     flex-direction: column;
     width: 90%;
+    margin-left: 20px;
     align-items: center;
   }
 
