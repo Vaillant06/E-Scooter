@@ -19,3 +19,9 @@ body {
   align-items: flex-start !important;
   justify-content: flex-start !important;
 }
+
+@media (max-width:768px) {
+  body {
+    height: 100%;
+  }
+}
