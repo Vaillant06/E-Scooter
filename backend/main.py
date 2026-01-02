@@ -101,6 +101,10 @@ def init_db():
             end_time TIMESTAMP NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+
+        INSERT INTO scooters (scooterId, batteryHealth, status, baseFee, ratePerMin, image) VALUES
+        ('E001', 85, 'free', 20, 2, '/images/scooter.webp'),
+        ('E002', 100, 'unavailable', 20, 2, '/images/scooter.webp');
         """
     )
     conn.commit()
