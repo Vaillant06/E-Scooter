@@ -60,9 +60,6 @@ def init_db():
     with conn.cursor() as cur:
         cur.execute(
             """
-            DROP SCHEMA public CASCADE;
-            CREATE SCHEMA public;
-
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(100) NOT NULL,
@@ -110,7 +107,6 @@ def init_db():
             VALUES
                 ('E001', 85, 'free', 20, 2, '/images/scooter.webp'),
                 ('E002', 100, 'unavailable', 20, 2, '/images/scooter.webp');
-
             """
         )
         conn.commit()
