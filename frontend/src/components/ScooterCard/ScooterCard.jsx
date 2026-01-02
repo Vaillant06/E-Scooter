@@ -18,13 +18,13 @@ function ScooterCard({ scooter }) {
       {/* Overlay for active scooters */}
       {isActive && (
         <div className="overlay">
-          <span className="text-success">Currently Active</span>
+          <span className="text-success">Currently Active...</span>
         </div>
       )}
 
       {isunavailable && (
         <div className="overlay">
-          <span>Available Soon...</span>
+          <span className="text-muted">Available Soon...</span>
         </div>
       )}  
 
