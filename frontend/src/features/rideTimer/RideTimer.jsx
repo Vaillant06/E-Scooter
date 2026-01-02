@@ -8,6 +8,7 @@ function RideTimer() {
   const navigate = useNavigate();
   const { estimatedMinutes, scooter, startTime } = location.state || {};
 
+  // ---- restore from localStorage (refresh-safe) ----
   const storedStart = localStorage.getItem("rideStartTime");
   const storedEst = localStorage.getItem("estimatedMinutes");
   const storedScooterId = localStorage.getItem("scooterId");
@@ -15,53 +16,94 @@ function RideTimer() {
 
   const finalEstMinutes = storedEst ? Number(storedEst) : estimatedMinutes;
 
-  if (!finalEstMinutes) {
-    navigate("/dashboard");
-    return null;
-  }
+  // ---- redirect if invalid ----
+  useEffect(() => {
+    if (!finalEstMinutes) {
+      navigate("/dashboard");
+    }
+  }, [finalEstMinutes, navigate]);
 
-  const startDate = storedStart ? new Date(storedStart) : new Date(startTime);
+  if (!finalEstMinutes) return null;
 
+  const startDate = storedStart
+    ? new Date(storedStart)
+    : new Date(startTime);
+
+  // ---- timer state ----
   const [minutesLeft, setMinutesLeft] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [showExtendPrompt, setShowExtendPrompt] = useState(false);
   const [extendAsked, setExtendAsked] = useState(false);
+  const [ending, setEnding] = useState(false);
 
+  // ---- main timer ----
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
-      const diffSec = Math.floor((now - startDate) / 1000); 
-      const totalRemainingSec = Math.max(finalEstMinutes * 60 - diffSec, 0);
+      const diffSec = Math.floor((now - startDate) / 1000);
+      const totalRemainingSec = Math.max(
+        finalEstMinutes * 60 - diffSec,
+        0
+      );
 
       setMinutesLeft(Math.floor(totalRemainingSec / 60));
       setSecondsLeft(totalRemainingSec % 60);
+
+      if (totalRemainingSec === 0) {
+        clearInterval(interval);
+      }
     }, 1000);
 
     return () => clearInterval(interval);
   }, [finalEstMinutes, startDate]);
 
+  // ---- extend prompt at 1 minute ----
   useEffect(() => {
-    if (!extendAsked && !storedExtended && minutesLeft === 1 && secondsLeft === 0) {
+    if (
+      !extendAsked &&
+      !storedExtended &&
+      minutesLeft === 1 &&
+      secondsLeft === 0
+    ) {
       setShowExtendPrompt(true);
       setExtendAsked(true);
     }
   }, [minutesLeft, secondsLeft, extendAsked, storedExtended]);
 
-  const handleEndRide = () => {
+  // ---- end ride ----
+  const handleEndRide = async () => {
+    if (ending) return;
+
     const stop = window.confirm("End ride now?");
     if (!stop) return;
 
+    setEnding(true);
+
+    const userId = localStorage.getItem("userId");
     const endTime = new Date().toISOString();
+
+    try {
+      await fetch("https://e-scooter-33r2.onrender.com/api/end", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+      });
+    } catch (err) {
+      console.error("Failed to end ride on backend", err);
+    }
+
+    // cleanup
     localStorage.removeItem("rideStartTime");
     localStorage.removeItem("estimatedMinutes");
     localStorage.removeItem("scooterId");
-    localStorage.removeItem("rideExtended"); // reset extension for next ride
+    localStorage.removeItem("rideExtended");
 
     navigate("/ride-summary", {
       state: { scooter, startTime, endTime }
     });
   };
 
+  // ---- extend ride ----
   const extendRide = () => {
     if (storedExtended) {
       alert("You can only extend the ride once.");
@@ -73,19 +115,24 @@ function RideTimer() {
       const updatedMinutes = finalEstMinutes + extra;
       localStorage.setItem("estimatedMinutes", updatedMinutes);
       localStorage.setItem("rideExtended", "true");
-      window.location.reload();
-    }
 
-    setShowExtendPrompt(false);
+      setShowExtendPrompt(false);
+      setExtendAsked(false);
+      setMinutesLeft(updatedMinutes);
+    }
   };
 
+  // ---------------- UI ----------------
   return (
     <>
       <Header hideNav />
+
       <div className="ride-page">
         <div className="ride-header text-white">
           <h1>Ride In Progress</h1>
-          <h2 className="mt-2">{scooter?.scooterId || storedScooterId}</h2>
+          <h2 className="mt-2">
+            {scooter?.scooterId || storedScooterId}
+          </h2>
         </div>
 
         <div className="timer-circle">
@@ -96,21 +143,32 @@ function RideTimer() {
         </div>
 
         <div className="ride-actions">
-          <button className="btn btn-secondary mt-3" onClick={handleEndRide}>
-            End Ride
+          <button
+            className="btn btn-secondary mt-3"
+            onClick={handleEndRide}
+            disabled={ending}
+          >
+            {ending ? "Ending Ride..." : "End Ride"}
           </button>
         </div>
 
         {showExtendPrompt && (
           <div className="extend-popup">
             <div className="extend-box">
-              <p><b>Only 1 minute left</b><br/>Extend your ride?</p>
+              <p>
+                <b>Only 1 minute left</b>
+                <br />
+                Extend your ride?
+              </p>
 
               <button className="btn btn-primary" onClick={extendRide}>
                 Extend
               </button>
 
-              <button className="btn btn-secondary" onClick={() => setShowExtendPrompt(false)}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowExtendPrompt(false)}
+              >
                 No
               </button>
             </div>
@@ -122,4 +180,3 @@ function RideTimer() {
 }
 
 export default RideTimer;
-  

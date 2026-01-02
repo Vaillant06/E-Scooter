@@ -6,19 +6,22 @@ function PaymentSuccess() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // data passed from PaymentPage
-  const { mode, totalCost, scooter, totalMinutes, startTime, endTime } =
-    location.state || {};
-
-  const [transactionId] = useState(
-    "TXN" + Math.random().toString(36).substring(2, 10).toUpperCase()
-  );
+  // ---- data passed from PaymentPage ----
+  const {
+    paymentMode,
+    totalCost,
+    scooter,
+    totalMinutes,
+    startTime,
+    endTime,
+    transactionId
+  } = location.state || {};
 
   const [ready, setReady] = useState(false);
 
-  // ---- handle missing state (page refresh) ----
+  // ---- guard against refresh / direct access ----
   useEffect(() => {
-    if (!scooter || !totalCost) {
+    if (!scooter || totalCost == null) {
       const timer = setTimeout(() => {
         navigate("/dashboard");
       }, 1500);
@@ -29,28 +32,16 @@ function PaymentSuccess() {
     }
   }, [navigate, scooter, totalCost]);
 
-  // ---- save payment only once ----
+  // ---- auto redirect after success ----
   useEffect(() => {
     if (!ready) return;
 
-    fetch("http://localhost:8000/api/save-payment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        scooterId: scooter.scooterId,
-        userId: "student123",
-        totalMinutes,
-        totalCost,
-        paymentMode: mode,
-        transactionId,
-        startTime,
-        endTime,
-      }),
-    });
+    const timer = setTimeout(() => {
+      navigate("/dashboard");
+    }, 5000);
 
-    const timer = setTimeout(() => navigate("/dashboard"), 5000);
     return () => clearTimeout(timer);
-  }, [ready, navigate, scooter, totalMinutes, totalCost, mode, transactionId, startTime, endTime]);
+  }, [ready, navigate]);
 
   if (!ready) {
     return (
@@ -65,10 +56,25 @@ function PaymentSuccess() {
       <h2>✅ Payment Successful</h2>
 
       <div className="mt-3 text-center">
-        <p><span className="text-muted">Amount Paid</span> : ₹{totalCost}</p>
-        <p><span className="text-muted">Payment Mode</span> : {mode}</p>
-        <p><span className="text-muted">Transaction ID</span> : {transactionId}</p>
-        <p><span className="text-muted">Redirecting to dashboard...</span></p>
+        <p>
+          <span className="text-muted">Amount Paid</span> : ₹{totalCost}
+        </p>
+
+        <p>
+          <span className="text-muted">Payment Mode</span> : {paymentMode}
+        </p>
+
+        <p>
+          <span className="text-muted">Transaction ID</span> : {transactionId}
+        </p>
+
+        <p>
+          <span className="text-muted">Ride Duration</span> : {totalMinutes} min
+        </p>
+
+        <p className="mt-3 text-muted">
+          Redirecting to dashboard...
+        </p>
       </div>
     </div>
   );

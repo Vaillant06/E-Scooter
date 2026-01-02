@@ -12,10 +12,24 @@ import "./StudentDashboard.css";
 
 function StudentDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentRide, setCurrentRide] = useState(null);
 
-  // later: replace null with data from backend `/api/current/:userId`
-  const currentRide = null;
-
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+  
+    fetch(`https://e-scooter-33r2.onrender.com/api/current/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.active) {
+          setCurrentRide(data.booking);
+        } else {
+          setCurrentRide(null);
+        }
+      })
+      .catch(err => console.error(err));
+  }, []);
+  
   return (
     <div className="dashboard-container">
       <Header onMenuClick={() => setSidebarOpen(true)} />
@@ -27,14 +41,13 @@ function StudentDashboard() {
         />
 
         <main className="dashboard-main">
-          {currentRide ? (
-            <>
-            <div class="message text-white">
-              <h3 className="mb-4">Current Ride</h3>
-              {/* later show ride info here */}
+        {currentRide ? (
+            <div className="active-ride">
+              <h3>Active Ride</h3>
+              <p>Scooter: {currentRide.scooterId}</p>
+              <p>Started at: {new Date(currentRide.startTime).toLocaleTimeString()}</p>
             </div>
-            </>
-          ) : (
+            ) : (
             <>
               <h4 className="message mb-4">
                 <i className="bi bi-flag-fill"></i>

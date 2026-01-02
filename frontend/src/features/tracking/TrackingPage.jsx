@@ -1,13 +1,14 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-
 import "./TrackingPage.css";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyDJp7uscyjA-4ey5MeO65ux79UOvPSaSV4";
-const BACKEND_URL = "http://127.0.0.1:8000/api/location";
+const BACKEND_URL = "https://e-scooter-33r2.onrender.com/api/location";
 
 // ---------- Custom scooter marker ----------
 function getScooterMarkerIcon(scale = 1.5) {
+  if (!window.google) return null;
+
   return {
     path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
     fillColor: "#1167b1",
@@ -15,8 +16,8 @@ function getScooterMarkerIcon(scale = 1.5) {
     strokeColor: "#03254c",
     strokeWeight: 2,
     scale,
-    anchor: new google.maps.Point(12, 22),      
-    labelOrigin: new google.maps.Point(12, -4), 
+    anchor: new window.google.maps.Point(12, 22),
+    labelOrigin: new window.google.maps.Point(12, -4),
   };
 }
 
@@ -34,53 +35,6 @@ function loadGoogleMaps(callback) {
   document.body.appendChild(script);
 }
 
-// ---------- User location ----------
-function locateUser(map, userMarkerRef, accuracyCircleRef) {
-  if (!navigator.geolocation) return;
-
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      const userPos = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-      };
-
-      if (!userMarkerRef.current) {
-        userMarkerRef.current = new google.maps.Marker({
-          map,
-          position: userPos,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 7,
-            fillColor: "#16a34a",
-            fillOpacity: 1,
-            strokeColor: "#065f46",
-            strokeWeight: 2,
-          },
-          title: "Your location",
-        });
-
-        accuracyCircleRef.current = new google.maps.Circle({
-          map,
-          center: userPos,
-          radius: pos.coords.accuracy,
-          fillColor: "#22c55e",
-          fillOpacity: 0.15,
-          strokeColor: "#16a34a",
-          strokeOpacity: 0.4,
-          strokeWeight: 1,
-        });
-      } else {
-        userMarkerRef.current.setPosition(userPos);
-        accuracyCircleRef.current.setCenter(userPos);
-        accuracyCircleRef.current.setRadius(pos.coords.accuracy);
-      }
-    },
-    () => {},
-    { enableHighAccuracy: true, maximumAge: 10000 }
-  );
-}
-
 // ---------- Component ----------
 export default function TrackingPage() {
   const mapRef = useRef(null);
@@ -89,6 +43,7 @@ export default function TrackingPage() {
   const scooterMarkerRef = useRef(null);
   const userMarkerRef = useRef(null);
   const accuracyCircleRef = useRef(null);
+  const geoWatchIdRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -96,7 +51,6 @@ export default function TrackingPage() {
     let intervalId;
 
     loadGoogleMaps(() => {
-      // Initial fetch to center map correctly
       fetch(`${BACKEND_URL}?t=${Date.now()}`, { cache: "no-store" })
         .then(res => res.json())
         .then(data => {
@@ -114,30 +68,24 @@ export default function TrackingPage() {
           const scooterPos = { lat, lng };
 
           // Create map
-          const map = new google.maps.Map(mapRef.current, {
+          const map = new window.google.maps.Map(mapRef.current, {
             center: scooterPos,
             zoom: 16,
           });
           mapInstanceRef.current = map;
 
-          setTimeout(() => {
-            google.maps.event.trigger(map, "resize");
-            map.setCenter(scooterPos);
-          }, 300);
-
           // Scooter marker
-          const BASE_SCALE = 1.5;
-          scooterMarkerRef.current = new google.maps.Marker({
+          scooterMarkerRef.current = new window.google.maps.Marker({
             map,
             position: scooterPos,
-            icon: getScooterMarkerIcon(BASE_SCALE),
+            icon: getScooterMarkerIcon(1.5),
             label: {
               text: String(data.scooter_id || "SCOOTER"),
               color: "#6b7280",
               fontSize: "13px",
               fontWeight: "600",
             },
-            animation: google.maps.Animation.DROP,
+            animation: window.google.maps.Animation.DROP,
           });
 
           // Zoom scaling
@@ -153,20 +101,62 @@ export default function TrackingPage() {
             );
           });
 
-          // User location
-          locateUser(map, userMarkerRef, accuracyCircleRef);
+          // ---- Live user location tracking ----
+          if (navigator.geolocation) {
+            geoWatchIdRef.current = navigator.geolocation.watchPosition(
+              pos => {
+                const userPos = {
+                  lat: pos.coords.latitude,
+                  lng: pos.coords.longitude,
+                };
+
+                if (!userMarkerRef.current) {
+                  userMarkerRef.current = new window.google.maps.Marker({
+                    map,
+                    position: userPos,
+                    icon: {
+                      path: window.google.maps.SymbolPath.CIRCLE,
+                      scale: 7,
+                      fillColor: "#16a34a",
+                      fillOpacity: 1,
+                      strokeColor: "#065f46",
+                      strokeWeight: 2,
+                    },
+                    title: "Your location",
+                  });
+
+                  accuracyCircleRef.current = new window.google.maps.Circle({
+                    map,
+                    center: userPos,
+                    radius: pos.coords.accuracy,
+                    fillColor: "#22c55e",
+                    fillOpacity: 0.15,
+                    strokeColor: "#16a34a",
+                    strokeOpacity: 0.4,
+                    strokeWeight: 1,
+                  });
+                } else {
+                  userMarkerRef.current.setPosition(userPos);
+                  accuracyCircleRef.current.setCenter(userPos);
+                  accuracyCircleRef.current.setRadius(pos.coords.accuracy);
+                }
+              },
+              () => {},
+              { enableHighAccuracy: true }
+            );
+          }
 
           // Fit bounds once
           setTimeout(() => {
             if (userMarkerRef.current && scooterMarkerRef.current) {
-              const bounds = new google.maps.LatLngBounds();
+              const bounds = new window.google.maps.LatLngBounds();
               bounds.extend(userMarkerRef.current.getPosition());
               bounds.extend(scooterMarkerRef.current.getPosition());
               map.fitBounds(bounds);
             }
           }, 800);
 
-          // Live scooter updates
+          // ---- Live scooter updates ----
           intervalId = setInterval(() => {
             fetch(`${BACKEND_URL}?t=${Date.now()}`, { cache: "no-store" })
               .then(res => res.json())
@@ -180,8 +170,7 @@ export default function TrackingPage() {
                   lng < -180 || lng > 180
                 ) return;
 
-                const pos = { lat, lng };
-                scooterMarkerRef.current.setPosition(pos);
+                scooterMarkerRef.current.setPosition({ lat, lng });
               });
           }, 5000);
         })
@@ -190,6 +179,9 @@ export default function TrackingPage() {
 
     return () => {
       if (intervalId) clearInterval(intervalId);
+      if (geoWatchIdRef.current) {
+        navigator.geolocation.clearWatch(geoWatchIdRef.current);
+      }
     };
   }, []);
 

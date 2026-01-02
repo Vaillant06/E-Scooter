@@ -25,17 +25,18 @@ function ScooterBooking() {
         if (!userConfirmed) return;
     
         // send booking to backend
-        await fetch("http://localhost:8000/api/book", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            scooterId: scooter.scooterId,
-            model: scooter.scooterId,
-            userId: "student123",
-            estimatedMinutes
-        })
-        });
+        const userId = localStorage.getItem("userId");
 
+        await fetch("https://e-scooter-33r2.onrender.com/api/book", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            scooterId: scooter.scooterId,
+            model: scooter.model || "Standard",
+            userId: userId
+          })
+        });
+        
         localStorage.setItem("rideStartTime", new Date().toISOString());
         localStorage.setItem("estimatedMinutes", estimatedMinutes);
         localStorage.setItem("scooterId", scooter.scooterId);

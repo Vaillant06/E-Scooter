@@ -8,7 +8,7 @@ function PaymentPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ----- try getting values from navigation state -----
+  // ---- read from navigation state ----
   let {
     scooter,
     totalMinutes,
@@ -18,19 +18,19 @@ function PaymentPage() {
     username
   } = location.state || {};
 
-  // ----- fallback to localStorage on refresh -----
+  // ---- fallback to localStorage (refresh-safe) ----
   const stored = JSON.parse(localStorage.getItem("paymentData") || "{}");
 
   scooter = scooter || stored.scooter;
-  totalMinutes = totalMinutes || stored.totalMinutes;
-  totalCost = totalCost || stored.totalCost;
+  totalMinutes = totalMinutes ?? stored.totalMinutes;
+  totalCost = totalCost ?? stored.totalCost;
   startTime = startTime || stored.startTime;
   endTime = endTime || stored.endTime;
-  username = username || stored.username;
+  username = username || stored.username || "User";
 
-  // ----- redirect if payment details are still missing -----
+  // ---- redirect if still invalid ----
   useEffect(() => {
-    if (!scooter || !totalCost) {
+    if (!scooter || totalCost == null) {
       const timer = setTimeout(() => navigate("/dashboard"), 800);
       return () => clearTimeout(timer);
     }
@@ -38,42 +38,79 @@ function PaymentPage() {
 
   const [loading, setLoading] = useState(false);
   const [paymentMode, setPaymentMode] = useState("");
+  const txnId = "TXN" + Date.now()
 
-  // ----- handle payment -----
-  const handlePayment = () => {
-    if (!paymentMode) return;
+  // ---- handle payment ----
+  const handlePayment = async () => {
+    if (!paymentMode || loading) return;
 
     setLoading(true);
 
-    setTimeout(() => {
-      const isSuccess = Math.random() < 0.85; // 85% success demo
+    // simulate payment gateway delay
+    setTimeout(async () => {
+      const isSuccess = Math.random() < 0.85; 
 
-      if (isSuccess) {
-        // pass details to success page
-        navigate("/payment-success", {
-          state: {
-            mode: paymentMode,
-            totalMinutes,
-            totalCost,
-            scooter,
-            startTime,
-            endTime,
-            username
-          }
-        });
-      } else {
+      if (!isSuccess) {
+        setLoading(false);
         navigate("/payment-failed", {
           state: { reason: "Payment failed. Try again." }
+        });
+        return;
+      }
+
+      try {
+        const userId = Number(localStorage.getItem("userId"));
+
+        await fetch("https://e-scooter-33r2.onrender.com/api/save-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            scooterId: scooter.scooterId,
+            userId,
+            totalMinutes,
+            totalCost,
+            paymentMode,
+            transactionId: "TXN" + Date.now(),
+            startTime,
+            endTime
+          })
+        });
+
+        // cleanup
+        localStorage.removeItem("paymentData");
+
+        navigate("/payment-success", {
+          state: {
+            scooter,
+            totalMinutes,
+            totalCost,
+            paymentMode,
+            startTime,
+            endTime,
+            username,
+            transactionId: txnId
+          }
+        });
+
+      } catch (err) {
+        console.error("Payment save failed", err);
+        setLoading(false);
+        navigate("/payment-failed", {
+          state: { reason: "Server error while saving payment." }
         });
       }
     }, 1500);
   };
 
-  if (!scooter || !totalCost) {
-    return <h3 className="text-center mt-5 text-light">Loading payment details...</h3>;
+  if (!scooter || totalCost == null) {
+    return (
+      <h3 className="text-center mt-5 text-light">
+        Loading payment details...
+      </h3>
+    );
   }
 
-  // --------------------- UI ---------------------
+  // ---------------- UI ----------------
   return (
     <>
       <Header hideNav />
@@ -98,7 +135,10 @@ function PaymentPage() {
           <div className="pay-section">
             <h5 className="sec-title">Fare Breakdown</h5>
             <p><span>Base Fee</span> <b>₹{scooter.baseFee}</b></p>
-            <p><span>Usage ({totalMinutes} min)</span> <b>₹{totalCost - scooter.baseFee}</b></p>
+            <p>
+              <span>Usage ({totalMinutes} min)</span>
+              <b>₹{totalCost - scooter.baseFee}</b>
+            </p>
 
             <div className="total-box">
               <span>Total Amount</span>
@@ -109,10 +149,13 @@ function PaymentPage() {
           {/* Payment Mode */}
           <div className="pay-section">
             <h5 className="sec-title">Select Payment Method</h5>
-            <PaymentModes paymentMode={paymentMode} setPaymentMode={setPaymentMode} />
+            <PaymentModes
+              paymentMode={paymentMode}
+              setPaymentMode={setPaymentMode}
+            />
           </div>
 
-          {/* Buttons */}
+          {/* Actions */}
           <button
             className="pay-btn"
             onClick={handlePayment}
