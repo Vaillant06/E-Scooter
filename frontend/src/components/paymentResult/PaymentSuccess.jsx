@@ -5,6 +5,7 @@ import "./PaymentResult.css";
 function PaymentSuccess() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [ready, setReady] = useState(false);
 
   // ---- data passed from PaymentPage ----
   const {
@@ -16,8 +17,6 @@ function PaymentSuccess() {
     endTime,
     transactionId
   } = location.state || {};
-
-  const [ready, setReady] = useState(false);
 
   // ---- guard against refresh / direct access ----
   useEffect(() => {
