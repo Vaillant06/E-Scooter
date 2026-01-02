@@ -278,7 +278,7 @@ button {
     min-height: 18px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .card  {
         width: 90%;
     } 
