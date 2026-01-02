@@ -53,10 +53,8 @@ import psycopg2
 
 conn = psycopg2.connect(DATABASE_URL)
 
-
 def get_cursor():
     return conn.cursor()
-
 
 def init_db():
     with conn.cursor() as cur:
@@ -309,8 +307,8 @@ def get_scooters():
 
 scooter_data = {
     "scooter_id": "SCOOTER_1",
-    "latitude": 12.75,
-    "longitude": 80.19,
+    "latitude": 12.752598,
+    "longitude": 80.196944,
 }
 
 
