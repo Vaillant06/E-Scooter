@@ -4,12 +4,9 @@ import "./ScooterCard.css";
 function ScooterCard({ scooter }) {
   const isFree = scooter.status === "free";
   const isActive = scooter.status === "active";
-  
-  // battery display: show "--" when scooter not free
-  const batteryDisplay = isFree ? `${scooter.batteryHealth}%` : "--";
 
   return (
-    <div className={`scooter-card ${!isFree ? "disabled" : ""}`}>
+    <div className={`scooter-card ${!isActive? "disabled" : ""}`}>
 
       {/* Image */}
       <img
@@ -17,8 +14,6 @@ function ScooterCard({ scooter }) {
         alt={scooter.scooterId}
         className="scooter-img"
       />
-
-
 
       {/* Overlay for active scooters */}
       {isActive && (
@@ -29,7 +24,7 @@ function ScooterCard({ scooter }) {
 
       {/* Details */}
       <h4 className="mt-2">{scooter.scooterId}</h4>
-      <p>Battery: {batteryDisplay}</p>
+      <p>Battery: {scooter.batteryHealth}</p>
       <p>Status: {scooter.status}</p>
 
       {/* Buttons stacked vertically */}
