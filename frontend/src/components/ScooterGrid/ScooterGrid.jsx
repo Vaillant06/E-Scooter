@@ -18,7 +18,7 @@ function ScooterGrid() {
 
       <div className="scooter-grid">
         {scooters.length === 0 ? (
-          <p>No scooters in the system.</p> 
+          <p className="text-white">No scooters in the system.</p> 
         ) : (
           scooters.map(scooter => (
             <ScooterCard key={scooter.id} scooter={scooter} />
