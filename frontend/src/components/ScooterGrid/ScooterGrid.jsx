@@ -6,7 +6,7 @@ function ScooterGrid() {
   const [scooters, setScooters] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/scooters")
+    fetch("https://e-scooter-33r2.onrender.com/api/scooters")
       .then(res => res.json())
       .then(data => setScooters(data))
       .catch(err => console.error("Error fetching scooters:", err));
