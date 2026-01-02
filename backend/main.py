@@ -48,6 +48,9 @@ app.add_middleware(
 #               DATABASE
 # ===========================================================
 
+
+import psycopg2
+
 conn = psycopg2.connect(DATABASE_URL)
 
 
@@ -56,61 +59,63 @@ def get_cursor():
 
 
 def init_db():
-    cur = get_cursor()
-    cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username VARCHAR(100) NOT NULL,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            password_hash TEXT,
-            auth_provider VARCHAR(20) DEFAULT 'manual',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(100) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password_hash TEXT,
+                auth_provider VARCHAR(20) DEFAULT 'manual',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
 
-        CREATE TABLE IF NOT EXISTS scooters (
-            id SERIAL PRIMARY KEY,
-            scooterId VARCHAR(10) UNIQUE NOT NULL,
-            batteryHealth INT NOT NULL,
-            status VARCHAR(20) NOT NULL,
-            baseFee INT NOT NULL,
-            ratePerMin INT NOT NULL,
-            image TEXT
-        );
+            CREATE TABLE IF NOT EXISTS scooters (
+                id SERIAL PRIMARY KEY,
+                scooterId VARCHAR(10) UNIQUE NOT NULL,
+                batteryHealth INT NOT NULL,
+                status VARCHAR(20) NOT NULL,
+                baseFee INT NOT NULL,
+                ratePerMin INT NOT NULL,
+                image TEXT
+            );
 
-        CREATE TABLE IF NOT EXISTS bookings (
-            id SERIAL PRIMARY KEY,
-            scooterId VARCHAR(10) REFERENCES scooters(scooterId),
-            userId INT REFERENCES users(id),
-            model TEXT,
-            startTime TIMESTAMP NOT NULL,
-            endTime TIMESTAMP,
-            totalMinutes INT,
-            active BOOLEAN DEFAULT TRUE
-        );
+            CREATE TABLE IF NOT EXISTS bookings (
+                id SERIAL PRIMARY KEY,
+                scooterId VARCHAR(10) REFERENCES scooters(scooterId),
+                userId INT REFERENCES users(id),
+                model TEXT,
+                startTime TIMESTAMP NOT NULL,
+                endTime TIMESTAMP,
+                totalMinutes INT,
+                active BOOLEAN DEFAULT TRUE
+            );
 
-        CREATE TABLE IF NOT EXISTS payments (
-            id SERIAL PRIMARY KEY,
-            scooter_id VARCHAR(10) REFERENCES scooters(scooterId),
-            user_id INT REFERENCES users(id),
-            total_minutes INT NOT NULL,
-            total_cost NUMERIC(10,2) NOT NULL,
-            payment_mode TEXT NOT NULL,
-            transaction_id TEXT UNIQUE NOT NULL,
-            start_time TIMESTAMP NOT NULL,
-            end_time TIMESTAMP NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
+            CREATE TABLE IF NOT EXISTS payments (
+                id SERIAL PRIMARY KEY,
+                scooter_id VARCHAR(10) REFERENCES scooters(scooterId),
+                user_id INT REFERENCES users(id),
+                total_minutes INT NOT NULL,
+                total_cost NUMERIC(10,2) NOT NULL,
+                payment_mode TEXT NOT NULL,
+                transaction_id TEXT UNIQUE NOT NULL,
+                start_time TIMESTAMP NOT NULL,
+                end_time TIMESTAMP NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
 
-        INSERT INTO scooters (scooterId, batteryHealth, status, baseFee, ratePerMin, image) VALUES
-        ('E001', 85, 'free', 20, 2, '/images/scooter.webp'),
-        ('E002', 100, 'unavailable', 20, 2, '/images/scooter.webp');
-        """
-    )
-    conn.commit()
-
+            INSERT INTO scooters (scooterId, batteryHealth, status, baseFee, ratePerMin, image)
+            VALUES
+                ('E001', 85, 'free', 20, 2, '/images/scooter.webp'),
+                ('E002', 100, 'unavailable', 20, 2, '/images/scooter.webp')
+            ON CONFLICT (scooterId) DO NOTHING;
+            """
+        )
+        conn.commit()
 
 init_db()
+
 
 # ===========================================================
 #               PASSWORD HASHING
