@@ -151,7 +151,7 @@
 /* =========================
 MOBILE VIEW – STUDENT DASHBOARD
 ========================= */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
 
   /* Stack layout */
   .dashboard-body {
