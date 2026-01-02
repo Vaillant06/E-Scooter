@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./SignUpPage.css"; 
 
 export default function SignUpPage() {
-    const BACKEND = "http://localhost:8000";
+    const BACKEND = "https://e-scooter-33r2.onrender.com";
     const navigate = useNavigate();
 
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
