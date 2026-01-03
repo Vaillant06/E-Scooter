@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 import hashlib
-import requests
 from passlib.hash import bcrypt
 import psycopg2
 from fastapi import FastAPI, Request, HTTPException
@@ -26,16 +25,6 @@ FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 SESSION_SECRET = os.environ.get("SESSION_SECRET", "dev-secret")
-
-# ===========================================================
-#               GEMINI AI CONFIG
-# ===========================================================
-
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise RuntimeError("GEMINI_API_KEY not set")
-
-print("Gemini key loaded:", bool(GEMINI_API_KEY))
 
 if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
     raise RuntimeError("Google OAuth env vars not set")
@@ -181,8 +170,6 @@ class ScooterLocation(BaseModel):
     longitude: float
 
 
-class ChatRequest(BaseModel):
-    question: str
 
 # ===========================================================
 #               ROOT
@@ -338,58 +325,6 @@ def update_location(data: ScooterLocation):
         }
     )
     return {"status": "updated"}
-
-# ===========================================================
-#               AI CHAT (GEMINI)
-# ===========================================================
-
-@app.post("/api/ai/chat")
-def ai_chat(data: ChatRequest):
-    url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent"
-
-    headers = {
-        "Content-Type": "application/json",
-    }
-
-    payload = {
-        "contents": [
-            {
-                "parts": [
-                    {
-                        "text": f"""
-You are an AI assistant for an electric scooter rental service.
-
-Scooter details:
-- Scooter ID: {scooter_data.get('scooter_id')}
-- Location: latitude {scooter_data.get('latitude')}, longitude {scooter_data.get('longitude')}
-- Base fee ₹20, ₹2 per minute.
-
-User question:
-{data.question}
-"""
-                    }
-                ]
-            }
-        ]
-    }
-
-    try:
-        response = requests.post(
-            f"{url}?key={GEMINI_API_KEY}",
-            headers=headers,
-            json=payload,
-            timeout=20
-        )
-
-        response.raise_for_status()
-        result = response.json()
-
-        return {
-            "answer": result["candidates"][0]["content"]["parts"][0]["text"]
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ===========================================================

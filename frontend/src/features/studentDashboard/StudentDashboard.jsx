@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import ScooterGrid from "../../components/ScooterGrid/ScooterGrid";
+import SimpleChatbot from "../../components/SimpleChatbot";
 
 import "./StudentDashboard.css";
 
@@ -59,6 +60,8 @@ function StudentDashboard() {
           )}
         </main>
       </div>
+            <SimpleChatbot />
+
     </div>
   );
 }
