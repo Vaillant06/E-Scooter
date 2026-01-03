@@ -9,3 +9,5 @@ SQLAlchemy==2.0.44
 authlib
 httpx
 itsdangerous
+bcrypt==4.1.3
+passlib[bcrypt]==1.7.4
