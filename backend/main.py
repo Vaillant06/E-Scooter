@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 import hashlib
-import google.generativeai as genai
 import requests
 from passlib.hash import bcrypt
 import psycopg2
@@ -36,9 +35,7 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY not set")
 
-genai.configure(api_key=GEMINI_API_KEY)
-
-gemini_model = genai.GenerativeModel("models/gemini-pro")
+print("Gemini key loaded:", bool(GEMINI_API_KEY))
 
 if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
     raise RuntimeError("Google OAuth env vars not set")
@@ -348,43 +345,52 @@ def update_location(data: ScooterLocation):
 
 @app.post("/api/ai/chat")
 def ai_chat(data: ChatRequest):
-    """
-    Gemini-powered chatbot for scooter assistance
-    """
+    url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent"
 
-    # Context pulled from live backend data
-    context = f"""
-    You are an AI assistant for an electric scooter rental service.
+    headers = {
+        "Content-Type": "application/json",
+    }
 
-    Scooter details:
-    - Scooter ID: {scooter_data.get('scooter_id')}
-    - Current location: latitude {scooter_data.get('latitude')}, longitude {scooter_data.get('longitude')}
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": f"""
+You are an AI assistant for an electric scooter rental service.
 
-    Pricing:
-    - Base fee: ₹20
-    - Rate per minute: ₹2
+Scooter details:
+- Scooter ID: {scooter_data.get('scooter_id')}
+- Location: latitude {scooter_data.get('latitude')}, longitude {scooter_data.get('longitude')}
+- Base fee ₹20, ₹2 per minute.
 
-    Rules:
-    - One active ride per user
-    - Scooter must be free to book
-    - Ride ends when the user clicks End Ride
-
-    Answer clearly, briefly, and helpfully.
-    """
-
-    prompt = f"""
-    Context:
-    {context}
-
-    User question:
-    {data.question}
-    """
+User question:
+{data.question}
+"""
+                    }
+                ]
+            }
+        ]
+    }
 
     try:
-        response = gemini_model.generate_content(prompt)
-        return {"answer": response.text}
+        response = requests.post(
+            f"{url}?key={GEMINI_API_KEY}",
+            headers=headers,
+            json=payload,
+            timeout=20
+        )
+
+        response.raise_for_status()
+        result = response.json()
+
+        return {
+            "answer": result["candidates"][0]["content"]["parts"][0]["text"]
+        }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 # ===========================================================
 #               BOOKING
