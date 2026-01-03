@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 import hashlib
 import google.generativeai as genai
+import requests
 from passlib.hash import bcrypt
 import psycopg2
 from fastapi import FastAPI, Request, HTTPException
@@ -37,7 +38,7 @@ if not GEMINI_API_KEY:
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+gemini_model = genai.GenerativeModel("gemini-1.0-pro")
 
 
 if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
