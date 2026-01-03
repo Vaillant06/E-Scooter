@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const GEMINI_API_KEY = "PASTE_YOUR_EXISTING_MAPS_API_KEY_HERE";
+const GEMINI_API_KEY = "AIzaSyDJp7uscyjA-4ey5MeO65ux79UOvPSaSV4";
 
 export default function SimpleChatbot() {
   const [question, setQuestion] = useState("");
@@ -29,7 +29,12 @@ export default function SimpleChatbot() {
                     text: `
 You are an AI assistant for an electric scooter rental app.
 
-Scooter details:
+keep the answers concise and relevant to the user's question. about 2 sentences.
+dont make up any information if you are unsure about the answer, tell them to contact support through mail.
+
+currently only one scooter is available for rent, other scooters will be added soon.
+
+here are the Scooter details:
 - Scooter ID: SCOOTER_1
 - Location: SSN College of Engineering
 - Base fee: ₹20
@@ -53,7 +58,7 @@ ${question}
           "No response from AI"
       );
     } catch (err) {
-      setAnswer("AI service unavailable. Please try again.");
+      setAnswer("AI service currently unavailable. Contact us directly by mail for queries.");
     }
 
     setLoading(false);
