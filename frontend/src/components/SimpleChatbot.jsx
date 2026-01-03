@@ -1,3 +1,5 @@
+alert("SimpleChatbot file LOADED");
+
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
