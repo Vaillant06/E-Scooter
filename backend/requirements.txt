@@ -9,3 +9,4 @@ SQLAlchemy==2.0.44
 authlib
 httpx
 itsdangerous
+google-generativeai
