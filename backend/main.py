@@ -301,22 +301,6 @@ async def google_callback(request: Request):
 @app.get("/api/scooters")
 def get_scooters():
     cur = get_cursor()
-    
-    # Safety check: Free any scooters that are marked 'active' but have no active bookings
-    # This handles cases where rides ended but scooter wasn't freed (old code or errors)
-    cur.execute(
-        """
-        UPDATE scooters s
-        SET status = 'free'
-        WHERE s.status = 'active'
-        AND NOT EXISTS (
-            SELECT 1 FROM bookings b
-            WHERE b.scooterId = s.scooterId AND b.active = true
-        )
-        """
-    )
-    conn.commit()
-    
     cur.execute("SELECT * FROM scooters ORDER BY id")
     rows = cur.fetchall()
     return [
