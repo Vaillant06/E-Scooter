@@ -45,6 +45,13 @@ function Sidebar({ open, toggle }) {
               <i className="bi bi-clock-history me-2"></i> Ride History
             </Link>
 
+            <a
+            className="btn btn-secondary mt-2"
+            href="mailto:support@ssn.edu.in?subject=Signup%20Issue&body=Please%20describe%20your%20problem"
+            >
+            Contact Us
+            </a>
+
             <button className="btn btn-danger" onClick={handleLogout}>
               <i className="bi bi-box-arrow-left me-2"></i> Logout
             </button>
