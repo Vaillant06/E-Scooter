@@ -41,16 +41,17 @@ function RideTimer() {
     const interval = setInterval(() => {
       const now = new Date();
       const diffSec = Math.floor((now - startDate) / 1000);
-      const totalRemainingSec = Math.max(
-        finalEstMinutes * 60 - diffSec,
-        0
-      );
+      // Allow negative time - don't clamp to 0
+      const totalRemainingSec = finalEstMinutes * 60 - diffSec;
 
-      setMinutesLeft(Math.floor(totalRemainingSec / 60));
-      setSecondsLeft(totalRemainingSec % 60);
-
-      if (totalRemainingSec === 0) {
-        clearInterval(interval);
+      // Handle negative time
+      if (totalRemainingSec < 0) {
+        const absSec = Math.abs(totalRemainingSec);
+        setMinutesLeft(-Math.floor(absSec / 60));
+        setSecondsLeft(absSec % 60);
+      } else {
+        setMinutesLeft(Math.floor(totalRemainingSec / 60));
+        setSecondsLeft(totalRemainingSec % 60);
       }
     }, 1000);
 
@@ -144,7 +145,8 @@ function RideTimer() {
 
         <div className="timer-circle">
           <div className="timer-text">
-            {String(minutesLeft).padStart(2, "0")}:
+            {minutesLeft < 0 ? "-" : ""}
+            {String(Math.abs(minutesLeft)).padStart(2, "0")}:
             {String(secondsLeft).padStart(2, "0")}
           </div>
         </div>
