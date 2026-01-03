@@ -18,7 +18,10 @@ function StudentDashboard() {
     if (!userId) return;
   
     fetch(`https://e-scooter-33r2.onrender.com/api/current/${userId}`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch current ride");
+        return res.json();
+      })
       .then(data => {
         if (data.active) {
           setCurrentRide(data.booking);
@@ -26,7 +29,10 @@ function StudentDashboard() {
           setCurrentRide(null);
         }
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error("Error fetching current ride:", err);
+        setCurrentRide(null);
+      });
   }, []);
   
   return (

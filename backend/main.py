@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 import hashlib
 from passlib.hash import bcrypt
-import psycopg2
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
@@ -48,7 +47,6 @@ app.add_middleware(
 # ===========================================================
 #               DATABASE
 # ===========================================================
-
 
 import psycopg2
 
@@ -336,12 +334,35 @@ def update_location(data: ScooterLocation):
 def book(data: BookingRequest):
     cur = get_cursor()
 
+    # Check if user has an active ride
     cur.execute(
         "SELECT 1 FROM bookings WHERE userId=%s AND active=true",
         (data.userId,),
     )
     if cur.fetchone():
         raise HTTPException(409, "Active ride exists")
+
+    # Check if user has any unpaid completed rides
+    # (bookings that are inactive but don't have a corresponding payment)
+    # Match by user_id, scooter_id, and start_time within 1 minute tolerance
+    cur.execute(
+        """
+        SELECT b.id FROM bookings b
+        WHERE b.userId = %s 
+            AND b.active = false
+            AND NOT EXISTS (
+                SELECT 1 FROM payments p
+                WHERE p.user_id = b.userId
+                    AND p.scooter_id = b.scooterId
+                    AND ABS(EXTRACT(EPOCH FROM (p.start_time - b.startTime))) < 60
+            )
+        ORDER BY b.endTime DESC
+        LIMIT 1
+        """,
+        (data.userId,),
+    )
+    if cur.fetchone():
+        raise HTTPException(409, "Please complete payment for your previous ride before booking a new one")
 
     cur.execute(
         "SELECT status FROM scooters WHERE scooterId=%s",
@@ -379,7 +400,7 @@ def end_ride(data: EndRideRequest):
 
     cur.execute(
         """
-        SELECT id,startTime FROM bookings
+        SELECT id, scooterId, startTime FROM bookings
         WHERE userId=%s AND active=true
         ORDER BY id DESC LIMIT 1
         """,
@@ -390,10 +411,11 @@ def end_ride(data: EndRideRequest):
     if not ride:
         raise HTTPException(404, "No active ride")
 
-    ride_id, start = ride
+    ride_id, scooter_id, start = ride
     end = datetime.now()
     mins = int((end - start).total_seconds() // 60)
 
+    # Mark booking as inactive
     cur.execute(
         """
         UPDATE bookings
@@ -403,8 +425,49 @@ def end_ride(data: EndRideRequest):
         (end, mins, ride_id),
     )
 
+    # Free the scooter immediately so other users can use it
+    cur.execute(
+        "UPDATE scooters SET status='free' WHERE scooterId=%s",
+        (scooter_id,),
+    )
+
     conn.commit()
-    return {"message": "Ride ended"}
+    return {"message": "Ride ended", "scooterId": scooter_id}
+
+
+# ===========================================================
+#               GET CURRENT RIDE
+# ===========================================================
+
+
+@app.get("/api/current/{user_id}")
+def get_current_ride(user_id: int):
+    cur = get_cursor()
+    
+    cur.execute(
+        """
+        SELECT id, scooterId, model, startTime, totalMinutes
+        FROM bookings
+        WHERE userId=%s AND active=true
+        ORDER BY id DESC LIMIT 1
+        """,
+        (user_id,),
+    )
+    ride = cur.fetchone()
+    
+    if not ride:
+        return {"active": False, "booking": None}
+    
+    return {
+        "active": True,
+        "booking": {
+            "id": ride[0],
+            "scooterId": ride[1],
+            "model": ride[2],
+            "startTime": ride[3].isoformat() if ride[3] else None,
+            "totalMinutes": ride[4],
+        }
+    }
 
 
 # ===========================================================
@@ -435,10 +498,8 @@ def save_payment(data: PaymentData):
         ),
     )
 
-    cur.execute(
-        "UPDATE scooters SET status='free' WHERE scooterId=%s",
-        (data.scooterId,),
-    )
+    # Scooter is already freed when ride ended, so no need to update status here
+    # This allows other users to use the scooter even if payment is pending
 
     conn.commit()
     return {"message": "Payment saved"}

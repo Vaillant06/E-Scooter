@@ -79,15 +79,22 @@ function RideTimer() {
 
     setEnding(true);
 
-    const userId = localStorage.getItem("userId");
+    const userId = Number(localStorage.getItem("userId"));
     const endTime = new Date().toISOString();
 
     try {
-      await fetch("https://e-scooter-33r2.onrender.com/api/end", {
+      const res = await fetch("https://e-scooter-33r2.onrender.com/api/end", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId })
       });
+
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.detail || "Failed to end ride. Please try again.");
+        setEnding(false);
+        return;
+      }
     } catch (err) {
       console.error("Failed to end ride on backend", err);
     }

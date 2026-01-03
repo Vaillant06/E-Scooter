@@ -17,7 +17,7 @@ import PaymentFailed from "./components/paymentResult/PaymentFailed";
 import "./styles/App.css";
 
 function App() {
-  const isLoggedIn = true;
+  const isLoggedIn = !!localStorage.getItem("userId");
 
   return (
     <>

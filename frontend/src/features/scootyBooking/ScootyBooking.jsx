@@ -25,29 +25,46 @@ function ScooterBooking() {
         if (!userConfirmed) return;
     
         // send booking to backend
-        const userId = localStorage.getItem("userId");
-
-        await fetch("https://e-scooter-33r2.onrender.com/api/book", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            scooterId: scooter.scooterId,
-            model: scooter.model || "Standard",
-            userId: userId
-          })
-        });
-        
-        localStorage.setItem("rideStartTime", new Date().toISOString());
-        localStorage.setItem("estimatedMinutes", estimatedMinutes);
-        localStorage.setItem("scooterId", scooter.scooterId);
-    
-        navigate("/ride-timer", {
-        state: {
-            estimatedMinutes,
-            scooter,
-            startTime: new Date().toISOString()
+        const userId = Number(localStorage.getItem("userId"));
+        if (!userId) {
+            alert("Please login first");
+            navigate("/login");
+            return;
         }
-        });
+
+        try {
+            const res = await fetch("https://e-scooter-33r2.onrender.com/api/book", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                scooterId: scooter.scooterId,
+                model: scooter.model || "Standard",
+                userId: userId
+              })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.detail || "Booking failed. Please try again.");
+                return;
+            }
+            
+            localStorage.setItem("rideStartTime", new Date().toISOString());
+            localStorage.setItem("estimatedMinutes", estimatedMinutes);
+            localStorage.setItem("scooterId", scooter.scooterId);
+        
+            navigate("/ride-timer", {
+            state: {
+                estimatedMinutes,
+                scooter,
+                startTime: new Date().toISOString()
+            }
+            });
+        } catch (err) {
+            console.error("Booking error:", err);
+            alert("Failed to book scooter. Please try again.");
+        }
     };
   
 return (
