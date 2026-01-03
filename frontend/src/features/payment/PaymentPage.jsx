@@ -28,17 +28,19 @@ function PaymentPage() {
   endTime = endTime || stored.endTime;
   username = username || stored.username || "User";
 
-  // ---- redirect if still invalid ----
+  // ---- redirect if invalid ----
   useEffect(() => {
     if (!scooter || totalCost == null) {
-      const timer = setTimeout(() => navigate("/dashboard"), 800);
-      return () => clearTimeout(timer);
+      const t = setTimeout(() => navigate("/dashboard"), 800);
+      return () => clearTimeout(t);
     }
   }, [navigate, scooter, totalCost]);
 
   const [loading, setLoading] = useState(false);
   const [paymentMode, setPaymentMode] = useState("");
-  const txnId = "TXN" + Date.now()
+
+  const transactionId = "TXN" + Date.now();
+  const userId = Number(localStorage.getItem("userId"));
 
   // ---- handle payment ----
   const handlePayment = async () => {
@@ -46,9 +48,63 @@ function PaymentPage() {
 
     setLoading(true);
 
-    // simulate payment gateway delay
+    // 🔹 WALLET PAYMENT (no fake gateway)
+    if (paymentMode === "wallet") {
+      try {
+        const res = await fetch(
+          "https://e-scooter-33r2.onrender.com/api/save-payment",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              scooterId: scooter.scooterId,
+              userId,
+              totalMinutes,
+              totalCost,
+              paymentMode: "wallet",
+              transactionId,
+              startTime,
+              endTime
+            })
+          }
+        );
+
+        if (!res.ok) {
+          const err = await res.json();
+          alert(err.detail || "Wallet payment failed");
+          setLoading(false);
+          return;
+        }
+
+        localStorage.removeItem("paymentData");
+
+        navigate("/payment-success", {
+          state: {
+            scooter,
+            totalMinutes,
+            totalCost,
+            paymentMode: "wallet",
+            startTime,
+            endTime,
+            username,
+            transactionId
+          }
+        });
+      } catch (err) {
+        console.error("Wallet payment error:", err);
+        navigate("/payment-failed", {
+          state: { reason: "Wallet payment failed." }
+        });
+      } finally {
+        setLoading(false);
+      }
+
+      return;
+    }
+
+    // 🔹 OTHER PAYMENT MODES (simulate gateway)
     setTimeout(async () => {
-      const isSuccess = Math.random() < 0.85; 
+      const isSuccess = Math.random() < 0.85;
 
       if (!isSuccess) {
         setLoading(false);
@@ -59,24 +115,28 @@ function PaymentPage() {
       }
 
       try {
-        const userId = Number(localStorage.getItem("userId"));
+        const res = await fetch(
+          "https://e-scooter-33r2.onrender.com/api/save-payment",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              scooterId: scooter.scooterId,
+              userId,
+              totalMinutes,
+              totalCost,
+              paymentMode,
+              transactionId,
+              startTime,
+              endTime
+            })
+          }
+        );
 
-        await fetch("https://e-scooter-33r2.onrender.com/api/save-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            scooterId: scooter.scooterId,
-            userId,
-            totalMinutes,
-            totalCost,
-            paymentMode,
-            transactionId: "TXN" + Date.now(),
-            startTime,
-            endTime
-          })
-        });
+        if (!res.ok) {
+          throw new Error("Payment save failed");
+        }
 
-        // cleanup
         localStorage.removeItem("paymentData");
 
         navigate("/payment-success", {
@@ -88,16 +148,16 @@ function PaymentPage() {
             startTime,
             endTime,
             username,
-            transactionId: txnId
+            transactionId
           }
         });
-
       } catch (err) {
-        console.error("Payment save failed", err);
-        setLoading(false);
+        console.error("Payment error:", err);
         navigate("/payment-failed", {
           state: { reason: "Server error while saving payment." }
         });
+      } finally {
+        setLoading(false);
       }
     }, 1500);
   };
@@ -117,7 +177,6 @@ function PaymentPage() {
 
       <div className="payment-wrapper">
         <div className="payment-card">
-
           <h2 className="pay-title">
             <i className="bi bi-credit-card-fill"></i> Payment Details
           </h2>
