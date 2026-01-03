@@ -13,6 +13,7 @@ import RideHistoryPage from "./features/rideHistory/RideHistoryPage";
 
 import PaymentSuccess from "./components/paymentResult/PaymentSuccess";
 import PaymentFailed from "./components/paymentResult/PaymentFailed";
+import SimpleChatbot from "./components/SimpleChatbot";
 
 import "./styles/App.css";
 
@@ -20,12 +21,13 @@ function App() {
   const isLoggedIn = true;
 
   return (
+    <>
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<LoginPage />} /> 
       <Route path="/signup" element={<SignUpPage />} />
       <Route path="/dashboard" element={isLoggedIn ? <StudentDashboard /> : <Navigate to="/" />} />
-      <Route path="/book" element={isLoggedIn ? <ScootyBooking /> : <Naviagate to="/" />} />
+      <Route path="/book" element={isLoggedIn ? <ScootyBooking /> : <Navigate to="/" />} />
       <Route path="/ride-timer" element={<RideTimer />} />
       <Route path="/ride-summary" element={<RideSummary />} />
       <Route path="/tracking" element={<TrackingPage />} />
@@ -38,6 +40,8 @@ function App() {
 
       <Route path="*" element={<h1>404 - Page not found</h1>} />
     </Routes>
+    <SimpleChatbot />
+    </>
   );
 }
 

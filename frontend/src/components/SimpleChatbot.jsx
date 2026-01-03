@@ -81,7 +81,7 @@ ${question}
     >
       CHATBOT LOADED
     </div>
-    
+
       {/* FLOATING BUTTON */}
       <button
         onClick={() => setOpen(!open)}
@@ -89,6 +89,7 @@ ${question}
           position: "fixed",
           bottom: 20,
           right: 20,
+          pointerEvents: "auto",
           width: 56,
           height: 56,
           borderRadius: "50%",
@@ -97,7 +98,7 @@ ${question}
           border: "none",
           fontSize: 24,
           cursor: "pointer",
-          zIndex: 9999,
+          zIndex: 999999,
         }}
         aria-label="Open chatbot"
       >
@@ -117,7 +118,7 @@ ${question}
             borderRadius: 10,
             boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
             padding: 14,
-            zIndex: 9999,
+            zIndex: 999999,
             fontFamily: "sans-serif",
           }}
         >
