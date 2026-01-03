@@ -69,7 +69,7 @@ export default function SignUpPage() {
             alert("Signup successful!");
             navigate("/");
         } catch {
-            setErrorMsg("Server error. Try again later.");
+            setErrorMsg("Server error. Please try signing up using google");
         }
     };
 
