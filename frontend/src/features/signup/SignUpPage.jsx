@@ -161,6 +161,16 @@ export default function SignUpPage() {
                             <p className="hint">Letters only; no spaces or special characters.</p>
 
                             <button type="submit">Create account</button>
+
+                            <a
+                            className="btn btn-secondary mt-2"
+                            href="mailto:support@ssn.edu.in?subject=Signup%20Issue&body=Please%20describe%20your%20problem"
+                            >
+                            Contact Us
+                            </a>
+
+                            
+
                         </form>
                     </div>
                 </div>
