@@ -13,7 +13,6 @@ import RideHistoryPage from "./features/rideHistory/RideHistoryPage";
 
 import PaymentSuccess from "./components/paymentResult/PaymentSuccess";
 import PaymentFailed from "./components/paymentResult/PaymentFailed";
-import SimpleChatbot from "./components/SimpleChatbot";
 
 import "./styles/App.css";
 
@@ -40,7 +39,6 @@ function App() {
 
       <Route path="*" element={<h1>404 - Page not found</h1>} />
     </Routes>
-    <SimpleChatbot />
     </>
   );
 }
