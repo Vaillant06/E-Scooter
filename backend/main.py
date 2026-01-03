@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
-
+import hashlib
+from passlib.hash import bcrypt
 import psycopg2
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -102,11 +103,6 @@ def init_db():
                 end_time TIMESTAMP NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
-
-            INSERT INTO scooters (scooterId, batteryHealth, status, baseFee, ratePerMin, image)
-            VALUES
-                ('E001', 85, 'free', 20, 2, '/images/scooter.webp'),
-                ('E002', 100, 'unavailable', 20, 2, '/images/scooter.webp');
             """
         )
         conn.commit()
@@ -121,12 +117,14 @@ init_db()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def hash_password(password: str):
-    return pwd_context.hash(password)
+def hash_password(password: str) -> str:
+    digest = hashlib.sha256(password.encode()).digest()
+    return bcrypt.hash(digest)
 
 
-def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+def verify_password(password: str, hashed: str) -> bool:
+    digest = hashlib.sha256(password.encode()).digest()
+    return bcrypt.verify(digest, hashed)
 
 
 # ===========================================================

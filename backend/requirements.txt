@@ -10,3 +10,5 @@ authlib
 httpx
 itsdangerous
 google-generativeai
+bcrypt==4.1.3
+passlib[bcrypt]==1.7.4
