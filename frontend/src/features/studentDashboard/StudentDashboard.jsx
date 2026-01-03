@@ -1,7 +1,7 @@
 /*  -----------------------------------
         STUDENT DASHBOARD PAGE
 -----------------------------------  */
-
+alert("SimpleChatbot file LOADED");
 import { useState, useEffect } from "react";
 
 import Header from "../../components/Header/Header";
