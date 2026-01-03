@@ -67,6 +67,21 @@ ${question}
 
   return (
     <>
+
+     <div
+      style={{
+        position: "fixed",
+        top: 10,
+        left: 10,
+        background: "red",
+        color: "white",
+        padding: "10px",
+        zIndex: 99999,
+      }}
+    >
+      CHATBOT LOADED
+    </div>
+    
       {/* FLOATING BUTTON */}
       <button
         onClick={() => setOpen(!open)}
