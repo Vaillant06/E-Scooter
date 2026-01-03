@@ -3,6 +3,7 @@ import { useState } from "react";
 const GEMINI_API_KEY = "AIzaSyDJp7uscyjA-4ey5MeO65ux79UOvPSaSV4";
 
 export default function SimpleChatbot() {
+  const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,12 +30,11 @@ export default function SimpleChatbot() {
                     text: `
 You are an AI assistant for an electric scooter rental app.
 
-keep the answers concise and relevant to the user's question. about 2 sentences.
-dont make up any information if you are unsure about the answer, tell them to contact support through mail.
+Keep answers concise (max 2 sentences).
+If unsure, ask the user to contact support via email.
+Do not make up information.
 
-currently only one scooter is available for rent, other scooters will be added soon.
-
-here are the Scooter details:
+Scooter details:
 - Scooter ID: SCOOTER_1
 - Location: SSN College of Engineering
 - Base fee: ₹20
@@ -52,80 +52,108 @@ ${question}
       );
 
       const data = await res.json();
-
       setAnswer(
         data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-          "No response from AI"
+          "No response from AI."
       );
-    } catch (err) {
-      setAnswer("AI service currently unavailable. Contact us directly by mail for queries.");
+    } catch {
+      setAnswer(
+        "AI service is currently unavailable. Please contact support via email."
+      );
     }
 
     setLoading(false);
   }
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 20,
-        right: 20,
-        width: 320,
-        background: "#ffffff",
-        border: "1px solid #e5e7eb",
-        borderRadius: 10,
-        boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-        padding: 14,
-        zIndex: 1000,
-        fontFamily: "sans-serif",
-      }}
-    >
-      <h4 style={{ margin: "0 0 10px 0" }}>AI Assistant</h4>
-
-      <input
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
-        placeholder="Ask about the scooter..."
-        style={{
-          width: "100%",
-          padding: 8,
-          borderRadius: 6,
-          border: "1px solid #d1d5db",
-          marginBottom: 8,
-        }}
-      />
-
+    <>
+      {/* FLOATING BUTTON */}
       <button
-        onClick={askAI}
-        disabled={loading}
+        onClick={() => setOpen(!open)}
         style={{
-          width: "100%",
-          padding: 8,
-          borderRadius: 6,
-          border: "none",
+          position: "fixed",
+          bottom: 20,
+          right: 20,
+          width: 56,
+          height: 56,
+          borderRadius: "50%",
           background: "#2563eb",
           color: "#ffffff",
-          cursor: loading ? "not-allowed" : "pointer",
+          border: "none",
+          fontSize: 24,
+          cursor: "pointer",
+          zIndex: 9999,
         }}
+        aria-label="Open chatbot"
       >
-        {loading ? "Thinking..." : "Ask AI"}
+        💬
       </button>
 
-      {answer && (
+      {/* CHAT WINDOW */}
+      {open && (
         <div
           style={{
-            marginTop: 10,
-            background: "#f3f4f6",
-            padding: 8,
-            borderRadius: 6,
-            fontSize: 14,
-            maxHeight: 150,
-            overflowY: "auto",
+            position: "fixed",
+            bottom: 90,
+            right: 20,
+            width: 320,
+            background: "#ffffff",
+            border: "1px solid #e5e7eb",
+            borderRadius: 10,
+            boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+            padding: 14,
+            zIndex: 9999,
+            fontFamily: "sans-serif",
           }}
         >
-          {answer}
+          <h4 style={{ margin: "0 0 10px 0" }}>AI Assistant</h4>
+
+          <input
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Ask about the scooter..."
+            style={{
+              width: "100%",
+              padding: 8,
+              borderRadius: 6,
+              border: "1px solid #d1d5db",
+              marginBottom: 8,
+            }}
+          />
+
+          <button
+            onClick={askAI}
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: 8,
+              borderRadius: 6,
+              border: "none",
+              background: "#2563eb",
+              color: "#ffffff",
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+          >
+            {loading ? "Thinking..." : "Ask AI"}
+          </button>
+
+          {answer && (
+            <div
+              style={{
+                marginTop: 10,
+                background: "#f3f4f6",
+                padding: 8,
+                borderRadius: 6,
+                fontSize: 14,
+                maxHeight: 150,
+                overflowY: "auto",
+              }}
+            >
+              {answer}
+            </div>
+          )}
         </div>
       )}
-    </div>
+    </>
   );
 }
