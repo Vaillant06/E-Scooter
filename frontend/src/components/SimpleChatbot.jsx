@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 const GEMINI_API_KEY = "AIzaSyDJp7uscyjA-4ey5MeO65ux79UOvPSaSV4";
 
@@ -65,111 +66,70 @@ ${question}
     setLoading(false);
   }
 
-  return (
-    <>
+ return createPortal(
+  <div
+    style={{
+      position: "fixed",
+      bottom: 20,
+      right: 20,
+      width: 320,
+      background: "#ffffff",
+      border: "1px solid #e5e7eb",
+      borderRadius: 10,
+      boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+      padding: 14,
+      zIndex: 2147483647, // max z-index
+      fontFamily: "sans-serif",
+    }}
+  >
+    <h4 style={{ margin: "0 0 10px 0" }}>AI Assistant</h4>
 
-     <div
+    <input
+      value={question}
+      onChange={(e) => setQuestion(e.target.value)}
+      placeholder="Ask about the scooter..."
       style={{
-        position: "fixed",
-        top: 10,
-        left: 10,
-        background: "red",
-        color: "white",
-        padding: "10px",
-        zIndex: 99999,
+        width: "100%",
+        padding: 8,
+        borderRadius: 6,
+        border: "1px solid #d1d5db",
+        marginBottom: 8,
+      }}
+    />
+
+    <button
+      onClick={askAI}
+      disabled={loading}
+      style={{
+        width: "100%",
+        padding: 8,
+        borderRadius: 6,
+        border: "none",
+        background: "#2563eb",
+        color: "#ffffff",
+        cursor: loading ? "not-allowed" : "pointer",
       }}
     >
-      CHATBOT LOADED
-    </div>
+      {loading ? "Thinking..." : "Ask AI"}
+    </button>
 
-      {/* FLOATING BUTTON */}
-      <button
-        onClick={() => setOpen(!open)}
+    {answer && (
+      <div
         style={{
-          position: "fixed",
-          bottom: 20,
-          right: 20,
-          pointerEvents: "auto",
-          width: 56,
-          height: 56,
-          borderRadius: "50%",
-          background: "#2563eb",
-          color: "#ffffff",
-          border: "none",
-          fontSize: 24,
-          cursor: "pointer",
-          zIndex: 999999,
+          marginTop: 10,
+          background: "#f3f4f6",
+          padding: 8,
+          borderRadius: 6,
+          fontSize: 14,
+          maxHeight: 150,
+          overflowY: "auto",
         }}
-        aria-label="Open chatbot"
       >
-        💬
-      </button>
+        {answer}
+      </div>
+    )}
+  </div>,
+  document.body
+);
 
-      {/* CHAT WINDOW */}
-      {open && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 90,
-            right: 20,
-            width: 320,
-            background: "#ffffff",
-            border: "1px solid #e5e7eb",
-            borderRadius: 10,
-            boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-            padding: 14,
-            zIndex: 999999,
-            fontFamily: "sans-serif",
-          }}
-        >
-          <h4 style={{ margin: "0 0 10px 0" }}>AI Assistant</h4>
-
-          <input
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Ask about the scooter..."
-            style={{
-              width: "100%",
-              padding: 8,
-              borderRadius: 6,
-              border: "1px solid #d1d5db",
-              marginBottom: 8,
-            }}
-          />
-
-          <button
-            onClick={askAI}
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: 8,
-              borderRadius: 6,
-              border: "none",
-              background: "#2563eb",
-              color: "#ffffff",
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
-          >
-            {loading ? "Thinking..." : "Ask AI"}
-          </button>
-
-          {answer && (
-            <div
-              style={{
-                marginTop: 10,
-                background: "#f3f4f6",
-                padding: 8,
-                borderRadius: 6,
-                fontSize: 14,
-                maxHeight: 150,
-                overflowY: "auto",
-              }}
-            >
-              {answer}
-            </div>
-          )}
-        </div>
-      )}
-    </>
-  );
 }
