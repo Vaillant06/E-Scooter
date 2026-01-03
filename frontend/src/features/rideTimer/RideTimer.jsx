@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../../components/Header/Header";
 import "./RideTimer.css";
@@ -36,22 +36,30 @@ function RideTimer() {
   const [extendAsked, setExtendAsked] = useState(false);
   const [ending, setEnding] = useState(false);
 
+  // ---- overtime ref (IMPORTANT) ----
+  const overtimeRef = useRef(false);
+
   // ---- main timer ----
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
       const diffSec = Math.floor((now - startDate) / 1000);
-      // Allow negative time - don't clamp to 0
-      const totalRemainingSec = finalEstMinutes * 60 - diffSec;
+      const remainingSec = finalEstMinutes * 60 - diffSec;
 
-      // Handle negative time
-      if (totalRemainingSec < 0) {
-        const absSec = Math.abs(totalRemainingSec);
-        setMinutesLeft(-Math.floor(absSec / 60));
-        setSecondsLeft(absSec % 60);
+      // Switch to overtime ONCE
+      if (remainingSec <= 0 && !overtimeRef.current) {
+        overtimeRef.current = true;
+      }
+
+      if (!overtimeRef.current) {
+        // ⏳ Countdown
+        setMinutesLeft(Math.floor(remainingSec / 60));
+        setSecondsLeft(remainingSec % 60);
       } else {
-        setMinutesLeft(Math.floor(totalRemainingSec / 60));
-        setSecondsLeft(totalRemainingSec % 60);
+        // 🔁 Overtime (reverse)
+        const overtimeSec = Math.abs(remainingSec);
+        setMinutesLeft(-Math.floor(overtimeSec / 60));
+        setSecondsLeft(overtimeSec % 60);
       }
     }, 1000);
 
@@ -92,12 +100,14 @@ function RideTimer() {
 
       if (!res.ok) {
         const data = await res.json();
-        alert(data.detail || "Failed to end ride. Please try again.");
+        alert(data.detail || "Failed to end ride.");
         setEnding(false);
         return;
       }
     } catch (err) {
-      console.error("Failed to end ride on backend", err);
+      console.error("Failed to end ride", err);
+      setEnding(false);
+      return;
     }
 
     // cleanup
@@ -114,7 +124,7 @@ function RideTimer() {
   // ---- extend ride ----
   const extendRide = () => {
     if (storedExtended) {
-      alert("You can only extend the ride once.");
+      alert("You can only extend once.");
       return;
     }
 
@@ -124,13 +134,13 @@ function RideTimer() {
       localStorage.setItem("estimatedMinutes", updatedMinutes);
       localStorage.setItem("rideExtended", "true");
 
+      overtimeRef.current = false; // reset overtime
       setShowExtendPrompt(false);
       setExtendAsked(false);
-      setMinutesLeft(updatedMinutes);
     }
   };
 
-  // ---------------- UI ----------------
+  // ---- UI ----
   return (
     <>
       <Header hideNav />
