@@ -9,6 +9,6 @@ SQLAlchemy==2.0.44
 authlib
 httpx
 itsdangerous
-google-generativeai
+google-generativeai>=0.5.4
 bcrypt==4.1.3
 passlib[bcrypt]==1.7.4
