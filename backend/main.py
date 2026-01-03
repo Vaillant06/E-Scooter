@@ -1,6 +1,8 @@
 import os
 from datetime import datetime
 import hashlib
+import google.generativeai as genai
+import requests
 from passlib.hash import bcrypt
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +26,19 @@ FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 SESSION_SECRET = os.environ.get("SESSION_SECRET", "dev-secret")
+
+# ===========================================================
+#               GEMINI AI CONFIG
+# ===========================================================
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise RuntimeError("GEMINI_API_KEY not set")
+
+genai.configure(api_key=GEMINI_API_KEY)
+
+gemini_model = genai.GenerativeModel("gemini-1.0-pro")
+
 
 if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
     raise RuntimeError("Google OAuth env vars not set")
@@ -166,6 +181,10 @@ class ScooterLocation(BaseModel):
     scooter_id: str
     latitude: float
     longitude: float
+
+
+class ChatRequest(BaseModel):
+    question: str
 
 
 
@@ -340,6 +359,49 @@ def update_location(data: ScooterLocation):
     )
     return {"status": "updated"}
 
+# ===========================================================
+#               AI CHAT (GEMINI)
+# ===========================================================
+
+@app.post("/api/ai/chat")
+def ai_chat(data: ChatRequest):
+    """
+    Gemini-powered chatbot for scooter assistance
+    """
+
+    # Context pulled from live backend data
+    context = f"""
+    You are an AI assistant for an electric scooter rental service.
+
+    Scooter details:
+    - Scooter ID: {scooter_data.get('scooter_id')}
+    - Current location: latitude {scooter_data.get('latitude')}, longitude {scooter_data.get('longitude')}
+
+    Pricing:
+    - Base fee: ₹20
+    - Rate per minute: ₹2
+
+    Rules:
+    - One active ride per user
+    - Scooter must be free to book
+    - Ride ends when the user clicks End Ride
+
+    Answer clearly, briefly, and helpfully.
+    """
+
+    prompt = f"""
+    Context:
+    {context}
+
+    User question:
+    {data.question}
+    """
+
+    try:
+        response = gemini_model.generate_content(prompt)
+        return {"answer": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ===========================================================
 #               BOOKING
