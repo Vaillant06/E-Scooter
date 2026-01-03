@@ -282,6 +282,22 @@ async def google_callback(request: Request):
 @app.get("/api/scooters")
 def get_scooters():
     cur = get_cursor()
+    
+    # Safety check: Free any scooters that are marked 'active' but have no active bookings
+    # This handles cases where rides ended but scooter wasn't freed (old code or errors)
+    cur.execute(
+        """
+        UPDATE scooters s
+        SET status = 'free'
+        WHERE s.status = 'active'
+        AND NOT EXISTS (
+            SELECT 1 FROM bookings b
+            WHERE b.scooterId = s.scooterId AND b.active = true
+        )
+        """
+    )
+    conn.commit()
+    
     cur.execute("SELECT * FROM scooters ORDER BY id")
     rows = cur.fetchall()
     return [
@@ -503,6 +519,40 @@ def save_payment(data: PaymentData):
 
     conn.commit()
     return {"message": "Payment saved"}
+
+
+# ===========================================================
+#               CLEANUP STUCK SCOOTERS
+# ===========================================================
+
+
+@app.post("/api/cleanup-scooters")
+def cleanup_scooters():
+    """
+    Safety endpoint to free scooters that are marked 'active' 
+    but have no active bookings. Useful for fixing stuck scooters.
+    """
+    cur = get_cursor()
+    
+    cur.execute(
+        """
+        UPDATE scooters s
+        SET status = 'free'
+        WHERE s.status = 'active'
+        AND NOT EXISTS (
+            SELECT 1 FROM bookings b
+            WHERE b.scooterId = s.scooterId AND b.active = true
+        )
+        RETURNING s.scooterId
+        """
+    )
+    freed = cur.fetchall()
+    conn.commit()
+    
+    return {
+        "message": f"Freed {len(freed)} stuck scooter(s)",
+        "freed_scooters": [s[0] for s in freed]
+    }
 
 
 # ===========================================================
