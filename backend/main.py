@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 import hashlib
 import google.generativeai as genai
-import requests
+import psycopg2
 from passlib.hash import bcrypt
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -63,12 +63,13 @@ app.add_middleware(
 #               DATABASE
 # ===========================================================
 
-import psycopg2
 
 conn = psycopg2.connect(DATABASE_URL)
 
+
 def get_cursor():
     return conn.cursor()
+
 
 def init_db():
     with conn.cursor() as cur:
@@ -134,6 +135,7 @@ def init_db():
             """
         )
         conn.commit()
+
 
 init_db()
 
@@ -305,11 +307,14 @@ async def google_callback(request: Request):
     row = cur.fetchone()
 
     if not row:
-        cur.execute("""
+        cur.execute(
+            """
             INSERT INTO users (username,email,auth_provider)
             VALUES (%s,%s,'google')
             RETURNING id
-        """, (username, email))
+        """,
+            (username, email),
+        )
         user_id = cur.fetchone()[0]
         cur.execute("INSERT INTO wallets (user_id,balance) VALUES (%s,0)", (user_id,))
         conn.commit()
@@ -371,9 +376,11 @@ def update_location(data: ScooterLocation):
     )
     return {"status": "updated"}
 
+
 # ===========================================================
 #               AI CHAT (GEMINI)
 # ===========================================================
+
 
 @app.post("/api/ai/chat")
 def ai_chat(data: ChatRequest):
@@ -415,6 +422,7 @@ def ai_chat(data: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 # ===========================================================
 #               BOOKING
 # ===========================================================
@@ -452,7 +460,10 @@ def book(data: BookingRequest):
         (data.userId,),
     )
     if cur.fetchone():
-        raise HTTPException(409, "Please complete payment for your previous ride before booking a new one")
+        raise HTTPException(
+            409,
+            "Please complete payment for your previous ride before booking a new one",
+        )
 
     cur.execute(
         "SELECT status FROM scooters WHERE scooterId=%s",
@@ -556,7 +567,7 @@ def get_current_ride(user_id: int):
             "model": ride[2],
             "startTime": ride[3].isoformat() if ride[3] else None,
             "totalMinutes": ride[4],
-        }
+        },
     }
 
 
@@ -628,11 +639,11 @@ def save_payment(data: PaymentData):
 @app.post("/api/cleanup-scooters")
 def cleanup_scooters():
     """
-    Safety endpoint to free scooters that are marked 'active' 
+    Safety endpoint to free scooters that are marked 'active'
     but have no active bookings. Useful for fixing stuck scooters.
     """
     cur = get_cursor()
-    
+
     cur.execute(
         """
         UPDATE scooters s
@@ -647,10 +658,10 @@ def cleanup_scooters():
     )
     freed = cur.fetchall()
     conn.commit()
-    
+
     return {
         "message": f"Freed {len(freed)} stuck scooter(s)",
-        "freed_scooters": [s[0] for s in freed]
+        "freed_scooters": [s[0] for s in freed],
     }
 
 
@@ -699,6 +710,7 @@ def ride_history(user_id: int):
 # ===========================================================
 #              WALLET
 # ===========================================================
+
 
 @app.get("/api/wallet/{user_id}")
 def get_wallet(user_id: int):
